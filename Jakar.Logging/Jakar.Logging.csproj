@@ -32,7 +32,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Jakar.Extensions" />		<PackageReference Include="JetBrains.Annotations" /> 		<PackageReference Include="Serilog" /> 		<PackageReference Include="Serilog.Formatting.Compact" /> 		<PackageReference Include="Serilog.Sinks.Async" /> 		<PackageReference Include="Serilog.Sinks.Console" /> 		<PackageReference Include="Serilog.Sinks.Debug" /> 		<PackageReference Include="Serilog.Sinks.File" />
+		<PackageReference Include="Jakar.Extensions" />
+		<PackageReference Include="Jakar.Files" />
+		<PackageReference Include="JetBrains.Annotations" />
+		<PackageReference Include="Serilog" />
+		<PackageReference Include="Serilog.Formatting.Compact" />
+		<PackageReference Include="Serilog.Sinks.Async" />
+		<PackageReference Include="Serilog.Sinks.Console" />
+		<PackageReference Include="Serilog.Sinks.Debug" />
+		<PackageReference Include="Serilog.Sinks.File" />
 	</ItemGroup>
 
 	<ItemGroup>
