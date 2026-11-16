@@ -1,4 +1,4 @@
-﻿// Jakar.Extensions :: Jakar.Logging.Tests
+﻿// Jakar.Extensions :: Jakar.Logging.Serilog.Tests
 // 11/15/2026
 
 using System.Linq;
@@ -10,7 +10,7 @@ using Serilog.Parsing;
 namespace Jakar.Extensions.Tests;
 
 
-/// <summary> The Serilog properties for the Jakar.Extensions models, which moved here from the models themselves. </summary>
+/// <summary> The Serilog properties for the Jakar.Extensions models (Jakar.Logging.Serilog). </summary>
 [TestFixture]
 public sealed class LogEventProperties_Tests
 {

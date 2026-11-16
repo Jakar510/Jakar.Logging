@@ -1,4 +1,4 @@
-﻿// Jakar.Extensions :: Jakar.Logging
+﻿// Jakar.Extensions :: Jakar.Logging.Serilog
 // 11/15/2026
 
 using Serilog.Core;
@@ -9,12 +9,18 @@ using Serilog.Events;
 namespace Jakar.Extensions;
 
 
-/// <summary> Serilog properties for the Jakar.Extensions models: they live here, so the models in Jakar.Extensions don't depend on Serilog. </summary>
+/// <summary> Serilog properties for the Jakar.Extensions models: they live here, so neither Jakar.Extensions nor Jakar.Logging depends on the other. </summary>
 public static class LogEventProperties
 {
+    public static LogEventProperty GetProperty( AppVersion                value, string name ) => new(name, new ScalarValue(value.ToString()));
+    public static LogEventProperty GetProperty( GcGenerationInformation[] value, string name ) => new(name, new SequenceValue(value.Select(static v => v.GetProperty())));
+    public static KeyValuePair<ScalarValue, LogEventPropertyValue> GetPropertyValue( AppVersion value, string name ) => new(new ScalarValue(name), new ScalarValue(value.ToString()));
+
+
+
     extension( AppInformation self )
     {
-        public StructureValue   GetStructureValue() => new([Enricher.GetProperty(self.Version, nameof(self.Version)), Enricher.GetProperty(self.AppID, nameof(self.AppID)), Enricher.GetProperty(self.AppName, nameof(self.AppName)), Enricher.GetProperty(self.PackageName, nameof(self.PackageName))]);
+        public StructureValue   GetStructureValue() => new([GetProperty(self.Version, nameof(self.Version)), Enricher.GetProperty(self.AppID, nameof(self.AppID)), Enricher.GetProperty(self.AppName, nameof(self.AppName)), Enricher.GetProperty(self.PackageName, nameof(self.PackageName))]);
         public LogEventProperty GetProperty()       => new(nameof(AppInformation), self.GetStructureValue());
     }
 
@@ -59,7 +65,7 @@ public static class LogEventProperties
                     Enricher.GetProperty(self.PinnedObjectsCount,           nameof(self.PinnedObjectsCount)),
                     Enricher.GetProperty(self.FinalizationPendingCount,     nameof(self.FinalizationPendingCount)),
                     Enricher.GetProperty(self.PauseTimePercentage,          nameof(self.PauseTimePercentage)),
-                    Enricher.GetProperty(self.GenerationInfo,               nameof(self.GenerationInfo)),
+                    LogEventProperties.GetProperty(self.GenerationInfo,                       nameof(self.GenerationInfo)),
                     Enricher.GetProperty(self.PauseDurations,               nameof(self.PauseDurations))
                 ]);
         public LogEventProperty GetProperty( string name ) => new(name, self.GetProperty());

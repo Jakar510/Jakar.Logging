@@ -1,5 +1,5 @@
-﻿// Jakar.Extensions :: Jakar.Extensions
-// 08/13/2025  10:16
+﻿// Jakar.Extensions :: Jakar.Logging
+// 11/15/2026
 
 using Serilog.Core;
 using Serilog.Events;
@@ -9,16 +9,16 @@ using Serilog.Events;
 namespace Jakar.Extensions;
 
 
-/// <summary> A log event enricher which adds span information from the current <see cref="Activity"/>. </summary>
-public sealed class OpenTelemetryActivityEnricher( IOpenTelemetryActivityEnricher options, TelemetrySource source ) : ILogEventEnricher
+/// <summary> Adds span information from the current <see cref="Activity"/>, the thread and GC state on warnings and above, and <see cref="AppLoggerOptions.Enrichers"/>. </summary>
+/// <remarks> Jakar.Logging.Serilog' <c> OpenTelemetryActivityEnricher </c> adds the app and device properties from a <c> TelemetrySource </c> on top of this. </remarks>
+public sealed class ActivityEnricher( AppLoggerOptions options ) : ILogEventEnricher
 {
-    public const    string           PARENT_ID     = "ParentId";
-    public const    string           PARENT_ID_KEY = "Serilog.ParentId";
-    public const    string           SPAN_ID       = "SpanId";
-    public const    string           SPAN_ID_KEY   = "Serilog.SpanId";
-    public const    string           TRACE_ID      = "TraceId";
-    public const    string           TRACE_ID_KEY  = "Serilog.TraceId";
-    public readonly LogEventProperty AppInfo       = source.Info.GetProperty();
+    public const string PARENT_ID     = "ParentId";
+    public const string PARENT_ID_KEY = "Serilog.ParentId";
+    public const string SPAN_ID       = "SpanId";
+    public const string SPAN_ID_KEY   = "Serilog.SpanId";
+    public const string TRACE_ID      = "TraceId";
+    public const string TRACE_ID_KEY  = "Serilog.TraceId";
 
 
     /// <summary> Enrich the log event. </summary>
@@ -30,19 +30,13 @@ public sealed class OpenTelemetryActivityEnricher( IOpenTelemetryActivityEnriche
         ArgumentNullException.ThrowIfNull(log);
 
         // _options.ScreenShot?.Enrich( log, factory ); // size limit of 262144
-        log.AddPropertyIfAbsent(AppInfo);
-        log.AddPropertyIfAbsent(options.DeviceInfo.ToProperty());
-
         if ( log.Level >= LogEventLevel.Warning )
         {
-            log.AddOrUpdateProperty(ThreadInformation.Create().GetProperty());
-
-            log.AddOrUpdateProperty(GcInfo.Create().GetProperty());
+            log.AddOrUpdateProperty(RuntimeProperties.Thread());
+            log.AddOrUpdateProperty(RuntimeProperties.Gc());
         }
 
         foreach ( ref readonly ILogEventEnricher enricher in enrichers ) { enricher.Enrich(log, factory); }
-
-        TryAddDeviceInformation(in log, source);
 
         Activity? activity = Activity.Current;
         if ( activity is null ) { return; }
@@ -59,11 +53,6 @@ public sealed class OpenTelemetryActivityEnricher( IOpenTelemetryActivityEnriche
     }
 
 
-    public static void TryAddDeviceInformation( ref readonly LogEvent log, TelemetrySource source )
-    {
-        DeviceInformation? device = source.TryGetDeviceInformation();
-        if ( device is not null ) { log.AddOrUpdateProperty(device.ToProperty()); }
-    }
     public static void AddSpanId( ref readonly LogEvent log, ref readonly Activity activity )
     {
         object? property = activity.GetCustomProperty(SPAN_ID_KEY);

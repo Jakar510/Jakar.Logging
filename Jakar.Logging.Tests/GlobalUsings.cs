@@ -3,5 +3,3 @@
 
 global using System;
 global using NUnit.Framework;
-global using static Jakar.Extensions.Constants;
-global using Jakar.Json;

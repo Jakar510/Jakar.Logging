@@ -31,12 +31,10 @@ public static class Enricher
     public static LogEventProperty GetProperty( in DateOnly       value, string name ) => new(name, new ScalarValue(value));
     public static LogEventProperty GetProperty( in TimeOnly       value, string name ) => new(name, new ScalarValue(value));
     public static LogEventProperty GetProperty( in Guid           value, string name ) => new(name, new ScalarValue(value));
-    public static LogEventProperty GetProperty( AppVersion        value, string name ) => new(name, new ScalarValue(value.ToString()));
     public static LogEventProperty GetProperty<TEnum>( TEnum value, string name )
         where TEnum : unmanaged, Enum => new(name, new ScalarValue(value.ToString()));
 
 
-    public static LogEventProperty GetProperty( GcGenerationInformation[]                  value,       string             name ) => new(name, new SequenceValue(value.Select(static v => v.GetProperty())));
     public static LogEventProperty GetProperty( TimeSpan[]                                 value,       string             name ) => new(name, new SequenceValue(value.Select(v => new ScalarValue(v))));
     public static LogEventProperty GetProperty( string?                                    description, ActivityStatusCode code ) => new(nameof(Activity.Status), new StructureValue([GetProperty(description, "Description"), GetProperty(code, "Code")]));
     public static LogEventProperty GetProperty( IEnumerable<ActivityEvent>                 events,      string             name ) => new(name, GetPropertyValue(events));
@@ -61,21 +59,7 @@ public static class Enricher
                                                                                                 DateOnly n       => new LogEventProperty(tag.Key, new ScalarValue(n)),
                                                                                                 TimeOnly n       => new LogEventProperty(tag.Key, new ScalarValue(n)),
                                                                                                 Guid n           => new LogEventProperty(tag.Key, new ScalarValue(n)),
-                                                                                                AppVersion n     => new LogEventProperty(tag.Key, new ScalarValue(n)),
-                                                                                                _ => throw new ExpectedValueTypeException(tag.Value,
-                                                                                                                                          typeof(string),
-                                                                                                                                          typeof(short),
-                                                                                                                                          typeof(int),
-                                                                                                                                          typeof(long),
-                                                                                                                                          typeof(float),
-                                                                                                                                          typeof(double),
-                                                                                                                                          typeof(DateTimeOffset),
-                                                                                                                                          typeof(DateTime),
-                                                                                                                                          typeof(TimeSpan),
-                                                                                                                                          typeof(DateOnly),
-                                                                                                                                          typeof(TimeOnly),
-                                                                                                                                          typeof(Guid),
-                                                                                                                                          typeof(AppVersion))
+                                                                                                _ => throw new ArgumentException($"{tag.Key}: expected one of string, short, int, long, float, double, DateTimeOffset, DateTime, TimeSpan, DateOnly, TimeOnly or Guid, got {tag.Value?.GetType().FullName ?? "null"}", nameof(tag))
                                                                                             };
 
     public static StructureValue GetPropertyValue( ActivityEvent                              value )  => new([GetProperty(value.Name, nameof(ActivityEvent.Name)), GetProperty(value.Timestamp, nameof(ActivityEvent.Timestamp)), GetProperty(value.Tags, nameof(ActivityEvent.Tags))]);
@@ -96,7 +80,6 @@ public static class Enricher
     public static KeyValuePair<ScalarValue, LogEventPropertyValue> GetPropertyValue( in DateOnly       value, string name ) => new(new ScalarValue(name), new ScalarValue(value));
     public static KeyValuePair<ScalarValue, LogEventPropertyValue> GetPropertyValue( in TimeOnly       value, string name ) => new(new ScalarValue(name), new ScalarValue(value));
     public static KeyValuePair<ScalarValue, LogEventPropertyValue> GetPropertyValue( in Guid           value, string name ) => new(new ScalarValue(name), new ScalarValue(value));
-    public static KeyValuePair<ScalarValue, LogEventPropertyValue> GetPropertyValue( AppVersion        value, string name ) => new(new ScalarValue(name), new ScalarValue(value.ToString()));
 
 
 
@@ -117,7 +100,7 @@ public static class Enricher
                                  _                             => null
                              };
 
-            return spanId ?? EMPTY;
+            return spanId ?? string.Empty;
         }
 
 
@@ -135,7 +118,7 @@ public static class Enricher
                                   _                             => null
                               };
 
-            return traceId ?? EMPTY;
+            return traceId ?? string.Empty;
         }
 
 
@@ -153,7 +136,7 @@ public static class Enricher
                                    _                             => null
                                };
 
-            return parentId ?? EMPTY;
+            return parentId ?? string.Empty;
         }
     }
 }

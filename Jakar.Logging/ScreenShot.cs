@@ -19,7 +19,7 @@ public sealed class ScreenShot( ReadOnlyMemory<byte> data ) : ILogEventEnricher
 
 
     public static bool      EnableLogging { get; set; }
-    public static LocalFile File          => AppLoggerOptions.Current.Paths.Screenshot;
+    public static string    File          => AppLoggerOptions.Current.ScreenshotFile;
     public        bool      IsEmpty       => Data.IsEmpty;
 
 
@@ -34,7 +34,7 @@ public sealed class ScreenShot( ReadOnlyMemory<byte> data ) : ILogEventEnricher
     }
 
 
-    public static string CreateID( params ReadOnlySpan<byte> data ) => data.Hash().ToString();
+    public static string CreateID( params ReadOnlySpan<byte> data ) => XxHash128.HashToUInt128(data).ToString();
     public static string CreateID()
     {
         Span<byte> span = stackalloc byte[16];
