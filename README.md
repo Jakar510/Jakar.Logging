@@ -1,28 +1,25 @@
 ﻿# Jakar.Logging
 
-Serilog and Microsoft.Extensions.Logging support: app logger options, OpenTelemetry activity enrichment, thread and GC properties, screenshots and scopes.
+Serilog and Microsoft.Extensions.Logging support for the Jakar packages: app logger options, OpenTelemetry activity enrichment, telemetry sources and spans, app/device/GC/thread properties, `AppVersion` and diagnostics.
 
 ```sh
 dotnet add package Jakar.Logging
 ```
 
-Split out of [Jakar.Extensions](https://github.com/Jakar510/Jakar.Extensions) in 10.12.0. Since 10.2.0 it doesn't depend on Jakar.Extensions or Jakar.Files: only Serilog (and its sinks), Microsoft.Extensions.Logging.Abstractions/Options and System.IO.Hashing. The types are in the `Jakar.Extensions` namespace. For the Jakar.Extensions integration (`AppInformation`, `DeviceInformation`, `TelemetrySource`), add [Jakar.Logging.Serilog](https://www.nuget.org/packages/Jakar.Logging.Serilog/).
+Split out of [Jakar.Extensions](https://github.com/Jakar510/Jakar.Extensions) in 10.12.0. It depends on [Jakar.Core](https://github.com/Jakar510/Jakar.Core) (and through it Jakar.Json) and Serilog; Jakar.Extensions 10.13 depends on it and type-forwards the types that moved here. The types are in the `Jakar.Extensions` namespace.
 
 ## What's in it
 
-- `AppLoggerOptions`: Serilog configuration for an app: debug and rolling-file sinks, `Enrichers`, and the folders (`AppDataDirectory`, `CacheDirectory`, `LogsDirectory`, `SeqBuffer`) and files (`LogsFile`, `ScreenshotFile`) as paths. `CreateLogger(configure)` builds the logger.
-- `ActivityEnricher`: adds the current `Activity` (trace, span, parent, tags, baggage, events), plus the thread and GC state on warnings and above.
-- `RuntimeProperties`: `Thread()` / `Gc()` as Serilog properties (the same shape as Jakar.Extensions' `ThreadInformation` / `GcInfo`).
-- `Enricher`: Serilog property helpers and `Activity` span/trace/parent IDs.
-- `ScreenShot`: attaches a screenshot reference to log events.
-- `ScopeProvider`, `NullScope`: `IExternalScopeProvider` implementations.
+- `AppLoggerOptions`: Serilog configuration for an app: debug and rolling-file sinks, `Enrichers`, and the folders (`AppDataDirectory`, `CacheDirectory`, `LogsDirectory`, `SeqBuffer`) and files (`LogsFile`, `ScreenshotFile`) as paths. `CreateLogger(configure)` builds the logger; `CreateLogger(TelemetrySource, DeviceInformation?)` adds the app and device properties.
+- `ActivityEnricher`: the current `Activity` (trace, span, parent, tags, baggage, events), plus thread and GC state on warnings and above. `OpenTelemetryActivityEnricher` adds the app/device properties of a `TelemetrySource` on top (`TelemetrySourceEnricher`).
+- `TelemetrySource`, `TelemetrySpan`, `AppVersion`, `AppInformation`, `DeviceInformation`, `GcInfo`, `StopWatch`, `SelfLogger`, `ExceptionDetails`.
+- `LogEventProperties`: `GetProperty()` / `ToProperty()` for `AppInformation`, `GcInfo` and `DeviceInformation`; `DeviceInformationEnricher` (`device.ToEnricher()`).
+- `RuntimeProperties`: `Thread()` / `Gc()` read from the runtime; `Enricher`: Serilog property helpers; `ScreenShot`; `ScopeProvider`, `NullScope`.
 
-## Migrating from 10.1.0
+## Migrating
 
-- Add [Jakar.Logging.Serilog](https://www.nuget.org/packages/Jakar.Logging.Serilog/) if you use `LogEventProperties` (`AppInformation.GetProperty()`, `DeviceInformation.ToProperty()`, ...), `DeviceInformationEnricher`, `OpenTelemetryActivityEnricher` or `CreateLogger(TelemetrySource)`; they moved there.
-- `AppLoggerOptions` is no longer a `BaseClass` or disposable, and has no `DeviceInfo` (pass the device to Jakar.Logging.Serilog' `CreateLogger(source, device)`). `Paths` (a Jakar.Files `FilePaths`) became `LogsDirectory`, `LogsFile` and `ScreenshotFile`; the directories are strings. `ConfigureLogger` no longer takes a `TelemetrySource`.
-- `IOpenTelemetryActivityEnricher` is gone; `ActivityEnricher` takes the `AppLoggerOptions`.
-- `ScreenShot.File` is a path; `Enricher` lost its `AppVersion` / `GcGenerationInformation` overloads (they're on `LogEventProperties` in Jakar.Logging.Serilog).
+- From 10.2.0: Jakar.Logging.Serilog is retired; its types are here, so drop that package. `ThreadInformation.GetProperty()` is gone: use `RuntimeProperties.Thread()`. Use Jakar.Extensions 10.13.0 or later.
+- From 10.1.0: `AppLoggerOptions` is no longer a `BaseClass` or disposable and has no `DeviceInfo` (pass the device to `CreateLogger(source, device)`); `Paths` became `LogsDirectory`, `LogsFile` and `ScreenshotFile`; `IOpenTelemetryActivityEnricher` is gone; `ScreenShot.File` is a path.
 
 ## Versioning
 
@@ -34,7 +31,5 @@ Versions are `<.NET major>.<library major>.<library minor>`: a breaking change b
 |---|---|
 | `Jakar.Logging/` | The Jakar.Logging package (Serilog only). |
 | `Jakar.Logging.Tests/` | NUnit tests. |
-| `Jakar.Logging.Serilog/` | The Jakar.Logging.Serilog package: the Jakar.Extensions integration (see its README). |
-| `Jakar.Logging.Serilog.Tests/` | NUnit tests. |
 | `.github/workflows/ci.yml` | Build and test on Ubuntu and Windows, for every push and pull request. |
 | `.github/workflows/publish.yml` | On `master`: CI, then pack both packages and push them to nuget.org (Trusted Publishing). |

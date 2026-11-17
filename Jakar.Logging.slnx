@@ -10,6 +10,4 @@
   </Folder>
   <Project Path="Jakar.Logging/Jakar.Logging.csproj" />
   <Project Path="Jakar.Logging.Tests/Jakar.Logging.Tests.csproj" />
-  <Project Path="Jakar.Logging.Serilog/Jakar.Logging.Serilog.csproj" />
-  <Project Path="Jakar.Logging.Serilog.Tests/Jakar.Logging.Serilog.Tests.csproj" />
 </Solution>

@@ -7,13 +7,13 @@
 		<!-- Types stay in the Jakar.Extensions namespace, as every package split out of Jakar.Extensions does (MigrationPlan.md). -->
 		<RootNamespace>Jakar.Extensions</RootNamespace>
 		<AssemblyName>Jakar.Logging</AssemblyName>
-		<Version>10.2.0</Version>
+		<Version>10.3.0</Version>
 		<Title>Jakar.Logging</Title>
 		<PackageId>Jakar.Logging</PackageId>
 		<Authors>Tyler Stegmaier</Authors>
-		<Description>Serilog and Microsoft.Extensions.Logging support: app logger options, OpenTelemetry activity enrichment, thread and GC properties, screenshots and scopes. No dependency on Jakar.Extensions (Jakar.Logging.Serilog adds that integration).</Description>
+		<Description>Serilog and Microsoft.Extensions.Logging support for the Jakar packages: app logger options, OpenTelemetry activity enrichment, telemetry sources and spans, app/device/GC/thread properties, AppVersion and diagnostics.</Description>
 		<PackageTags>logging serilog opentelemetry file-logger enricher</PackageTags>
-		<PackageReleaseNotes>10.2.0: BREAKING: no longer depends on Jakar.Extensions or Jakar.Files (Serilog, Microsoft.Extensions.Logging.Abstractions/Options and System.IO.Hashing only). The Jakar.Extensions parts moved to the new Jakar.Logging.Serilog: LogEventProperties (AppInformation/ThreadInformation/GcInfo/DeviceInformation properties), DeviceInformationEnricher, OpenTelemetryActivityEnricher (app and device properties from a TelemetrySource) and AppLoggerOptions.CreateLogger(TelemetrySource). Here: ActivityEnricher (spans, plus thread and GC state from RuntimeProperties on warnings) replaces OpenTelemetryActivityEnricher; IOpenTelemetryActivityEnricher is gone. AppLoggerOptions is no longer a BaseClass or disposable, has no DeviceInfo/Info, uses string paths (AppDataDirectory, CacheDirectory, LogsDirectory, SeqBuffer, LogsFile, ScreenshotFile) instead of LocalDirectory/FilePaths, CreateLogger(Action&lt;LoggerConfiguration&gt;?) replaces CreateLogger(TelemetrySource), and ConfigureLogger no longer takes a TelemetrySource; the folder/template constants are on AppLoggerOptions. ScreenShot.File is a path. Enricher lost its AppVersion/GcGenerationInformation overloads. 10.1.0: initial release. Split out of Jakar.Extensions 10.12.0; the types keep the Jakar.Extensions namespace.</PackageReleaseNotes>
+		<PackageReleaseNotes>10.3.0: depends on Jakar.Core. Gains TelemetrySource, TelemetrySpan, AppVersion (+ flags), AppInformation, DeviceInformation (+ category/platform/types), GcInfo/GcMemoryInformation/GcGenerationInformation, StopWatch, SelfLogger, FuzzyEqualizer, ExceptionDetails/MethodDetails/ParameterDetails (from Jakar.Extensions, which type-forwards them), and everything that was in Jakar.Logging.Serilog: LogEventProperties, DeviceInformationEnricher, TelemetrySourceEnricher, OpenTelemetryActivityEnricher, AppLoggerOptions.CreateLogger(TelemetrySource)/Info. ThreadInformation stays in Jakar.Extensions; its Serilog property is RuntimeProperties.Thread(). Use with Jakar.Extensions 10.13.0 or later. 10.2.0: BREAKING: no longer depends on Jakar.Extensions or Jakar.Files (Serilog, Microsoft.Extensions.Logging.Abstractions/Options and System.IO.Hashing only). The Jakar.Extensions parts moved to the new Jakar.Logging.Serilog: LogEventProperties (AppInformation/ThreadInformation/GcInfo/DeviceInformation properties), DeviceInformationEnricher, OpenTelemetryActivityEnricher (app and device properties from a TelemetrySource) and AppLoggerOptions.CreateLogger(TelemetrySource). Here: ActivityEnricher (spans, plus thread and GC state from RuntimeProperties on warnings) replaces OpenTelemetryActivityEnricher; IOpenTelemetryActivityEnricher is gone. AppLoggerOptions is no longer a BaseClass or disposable, has no DeviceInfo/Info, uses string paths (AppDataDirectory, CacheDirectory, LogsDirectory, SeqBuffer, LogsFile, ScreenshotFile) instead of LocalDirectory/FilePaths, CreateLogger(Action&lt;LoggerConfiguration&gt;?) replaces CreateLogger(TelemetrySource), and ConfigureLogger no longer takes a TelemetrySource; the folder/template constants are on AppLoggerOptions. ScreenShot.File is a path. Enricher lost its AppVersion/GcGenerationInformation overloads. 10.1.0: initial release. Split out of Jakar.Extensions 10.12.0; the types keep the Jakar.Extensions namespace.</PackageReleaseNotes>
 		<PackageIcon>icon.png</PackageIcon>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
@@ -30,6 +30,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<!-- BaseClass (DeviceInformation) and, through it, Jakar.Json. -->
+		<PackageReference Include="Jakar.Core" PrivateAssets="none" />
 		<PackageReference Include="JetBrains.Annotations" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
 		<PackageReference Include="Microsoft.Extensions.Options" />

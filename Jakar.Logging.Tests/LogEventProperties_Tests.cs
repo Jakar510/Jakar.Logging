@@ -10,7 +10,7 @@ using Serilog.Parsing;
 namespace Jakar.Extensions.Tests;
 
 
-/// <summary> The Serilog properties for the Jakar.Extensions models (Jakar.Logging.Serilog). </summary>
+/// <summary> The Serilog properties for the app, device and GC models. </summary>
 [TestFixture]
 public sealed class LogEventProperties_Tests
 {
@@ -34,15 +34,6 @@ public sealed class LogEventProperties_Tests
 
         Assert.That(property.Name,                              Is.EqualTo(nameof(GcInfo)));
         Assert.That(value.Properties.Single(static x => x.Name == nameof(GcInfo.MemoryInfo)).Value, Is.InstanceOf<StructureValue>());
-    }
-
-
-    [Test] public void ThreadInformation_HasTheThreadID()
-    {
-        ThreadInformation thread = ThreadInformation.Create();
-        StructureValue    value  = (StructureValue)thread.GetProperty().Value;
-
-        Assert.That(value.Properties.Single(static x => x.Name == nameof(ThreadInformation.ManagedThreadID)).Value.ToString(), Is.EqualTo(thread.ManagedThreadID.ToString()));
     }
 
 

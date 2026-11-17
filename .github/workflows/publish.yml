@@ -1,6 +1,6 @@
 ﻿name: Publish
 
-# Every push to master runs CI, packs Jakar.Logging and Jakar.Logging.Serilog and pushes them to nuget.org. A version that's already there is skipped,
+# Every push to master runs CI, packs Jakar.Logging and pushes it to nuget.org. A version that's already there is skipped,
 # so a release is a commit that bumps <Version> in Jakar.Logging/Jakar.Logging.csproj (<.NET major>.<library major>.<library minor>).
 #
 # nuget.org Trusted Publishing (no stored API key): the repository needs
@@ -51,9 +51,7 @@ jobs:
           if [ -f nuget.config ] && grep -q 'key="LocalNuGet"' nuget.config; then dotnet nuget remove source LocalNuGet --configfile nuget.config; fi
 
       - name: Pack
-        run: |
-          dotnet pack Jakar.Logging/Jakar.Logging.csproj -c Release -o artifacts
-          dotnet pack Jakar.Logging.Serilog/Jakar.Logging.Serilog.csproj -c Release -o artifacts
+        run: dotnet pack Jakar.Logging/Jakar.Logging.csproj -c Release -o artifacts
 
       - name: Upload packages
         uses: actions/upload-artifact@v4

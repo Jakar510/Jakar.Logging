@@ -1,4 +1,4 @@
-﻿// Jakar.Extensions :: Jakar.Logging.Serilog
+﻿// Jakar.Extensions :: Jakar.Logging
 // 11/15/2026
 
 using Serilog.Core;
@@ -9,7 +9,7 @@ using Serilog.Events;
 namespace Jakar.Extensions;
 
 
-/// <summary> Serilog properties for the Jakar.Extensions models: they live here, so neither Jakar.Extensions nor Jakar.Logging depends on the other. </summary>
+/// <summary> Serilog properties for the app, device and GC models (<see cref="RuntimeProperties.Thread()"/> has the thread one). </summary>
 public static class LogEventProperties
 {
     public static LogEventProperty GetProperty( AppVersion                value, string name ) => new(name, new ScalarValue(value.ToString()));
@@ -22,14 +22,6 @@ public static class LogEventProperties
     {
         public StructureValue   GetStructureValue() => new([GetProperty(self.Version, nameof(self.Version)), Enricher.GetProperty(self.AppID, nameof(self.AppID)), Enricher.GetProperty(self.AppName, nameof(self.AppName)), Enricher.GetProperty(self.PackageName, nameof(self.PackageName))]);
         public LogEventProperty GetProperty()       => new(nameof(AppInformation), self.GetStructureValue());
-    }
-
-
-
-    extension( ThreadInformation self )
-    {
-        public StructureValue   GetStructureValue() => new([Enricher.GetProperty(self.Name, nameof(self.Name)), Enricher.GetProperty(self.ManagedThreadID, nameof(self.ManagedThreadID)), Enricher.GetProperty(self.CurrentCulture.DisplayName, nameof(self.CurrentCulture)), Enricher.GetProperty(self.CurrentUICulture.DisplayName, nameof(self.CurrentUICulture))]);
-        public LogEventProperty GetProperty()       => new(nameof(ThreadInformation), self.GetStructureValue());
     }
 
 
